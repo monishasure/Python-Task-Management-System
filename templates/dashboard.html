@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="dashboard">
+        <header class="topbar">
+            <div>
+                <h1>Task Manager</h1>
+                <p>Welcome, {{ session.username }}!</p>
+            </div>
+            <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+        </header>
+
+        <section class="task-form">
+            <h2>Add New Task</h2>
+            <form action="{{ url_for('add_task') }}" method="POST">
+                <input type="text" name="title" placeholder="Task title" required>
+                <textarea name="description" placeholder="Task description"></textarea>
+                <button type="submit">+ Add Task</button>
+            </form>
+        </section>
+
+        <section class="task-list">
+            <h2>Your Tasks</h2>
+
+            <div class="filters">
+                <a href="{{ url_for('dashboard', status='All') }}">All</a>
+                <a href="{{ url_for('dashboard', status='Pending') }}">Pending</a>
+                <a href="{{ url_for('dashboard', status='Completed') }}">Completed</a>
+            </div>
+
+            {% if tasks %}
+                {% for task in tasks %}
+                    <article class="task">
+                        <div>
+                            <h3>{{ task.title }}</h3>
+                            <p>{{ task.description }}</p>
+                            <span class="status">{{ task.status }}</span>
+                        </div>
+
+                        <div class="actions">
+                            <form action="{{ url_for('toggle_task', task_id=task.id) }}" method="POST">
+                                <button type="submit">
+                                    {% if task.status == 'Pending' %}
+                                        Complete
+                                    {% else %}
+                                        Mark Pending
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <a class="edit" href="{{ url_for('edit_task', task_id=task.id) }}">Edit</a>
+
+                            <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST"
+                                  onsubmit="return confirm('Delete this task?')">
+                                <button class="delete" type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <p>No tasks found. Add your first task!</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
